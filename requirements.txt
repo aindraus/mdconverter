@@ -1,0 +1,8 @@
+flask==2.3.3
+markdown==3.5
+pygments==2.16.1
+weasyprint==60.1
+python-markdown-math==0.8
+markdown-checklist==0.4.4
+pymdown-extensions==10.3
+flask-wtf==1.2.1

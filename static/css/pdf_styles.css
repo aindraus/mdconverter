@@ -1,0 +1,128 @@
+/* PDF Styles */
+@page {
+    margin: 2cm;
+    @top-center {
+        content: "Markdown to PDF";
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-size: 10pt;
+        color: #666;
+    }
+    @bottom-center {
+        content: counter(page);
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-size: 10pt;
+        color: #666;
+    }
+}
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    font-size: 11pt;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+}
+
+h1 { font-size: 22pt; border-bottom: 1px solid #eee; padding-bottom: 0.3em; }
+h2 { font-size: 18pt; border-bottom: 1px solid #eee; padding-bottom: 0.3em; }
+h3 { font-size: 15pt; }
+h4 { font-size: 13pt; }
+h5 { font-size: 12pt; }
+h6 { font-size: 11pt; }
+
+p, ul, ol {
+    margin-bottom: 1em;
+}
+
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+blockquote {
+    border-left: 4px solid #ddd;
+    padding-left: 1em;
+    color: #777;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f5f5f5;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+pre {
+    background-color: #f5f5f5;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1em 0;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    page-break-inside: avoid;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 8px 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #f5f5f5;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    page-break-inside: avoid;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 2em 0;
+}
+
+/* Avoid page breaks inside paragraphs */
+p {
+    page-break-inside: avoid;
+}
+
+/* Force page breaks before major sections */
+h1, h2 {
+    page-break-before: always;
+}
+
+/* First h1 should not have a page break before */
+h1:first-of-type {
+    page-break-before: avoid;
+} 

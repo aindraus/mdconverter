@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to PDF/HTML Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Markdown to PDF/HTML Converter</h1>
+            <p>Convert your Markdown to beautifully styled PDF or HTML documents</p>
+        </header>
+        
+        <main>
+            <div class="editor-container">
+                <div class="editor-section">
+                    <h2>Markdown Input</h2>
+                    <textarea id="markdown-input" placeholder="Enter your Markdown here..."></textarea>
+                    <div class="controls">
+                        <form id="convert-form" method="post" action="{{ url_for('convert') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" id="markdown-text" name="markdown_text" value="">
+                            <div class="format-selection">
+                                <label>
+                                    <input type="radio" name="output_format" value="html" checked> HTML
+                                </label>
+                                <label>
+                                    <input type="radio" name="output_format" value="pdf"> PDF
+                                </label>
+                            </div>
+                            <button type="submit" id="convert-btn">Convert</button>
+                        </form>
+                        <button id="preview-btn">Preview</button>
+                    </div>
+                </div>
+                
+                <div class="preview-section">
+                    <h2>Preview</h2>
+                    <div id="preview-content" class="preview-container"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 Markdown to PDF/HTML Converter</p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 

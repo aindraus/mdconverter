@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to HTML/PDF Converter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-code"></i> Markdown to HTML/PDF Converter</h1>
+            <p>Convert your Markdown to beautifully styled HTML and PDF documents with syntax highlighting</p>
+        </header>
+        
+        <main>
+            <form id="convert-form" method="post" action="/convert">
+                {{ form.csrf_token }}
+                <input type="hidden" id="markdown-text" name="markdown_text" value="">
+                
+                <div class="editor-container">
+                    <div class="editor-section">
+                        <h2><i class="fas fa-edit"></i> Markdown Editor</h2>
+                        <textarea id="markdown-input" placeholder="Type or paste your markdown here..."></textarea>
+                        <div class="controls">
+                            <div class="format-selection">
+                                <label>
+                                    <input type="radio" name="output_format" value="html" checked>
+                                    <i class="fas fa-code"></i> HTML
+                                </label>
+                                <label>
+                                    <input type="radio" name="output_format" value="pdf">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </label>
+                            </div>
+                            <div class="buttons">
+                                <button type="button" id="preview-btn">
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                                <button type="submit">
+                                    <i class="fas fa-download"></i> Convert
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-section">
+                        <h2><i class="fas fa-eye"></i> Live Preview</h2>
+                        <div id="preview-content" class="preview-container"></div>
+                    </div>
+                </div>
+            </form>
+        </main>
+        
+        <footer>
+            <p>Markdown to HTML/PDF Converter &copy; 2024 | <a href="#"><i class="fas fa-code"></i> View on GitHub</a></p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 
