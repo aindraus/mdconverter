@@ -1,5 +1,6 @@
 import os
 import io
+import re
 from flask import Flask, render_template, request, send_file, jsonify, make_response
 import markdown
 from markdown.extensions.codehilite import CodeHiliteExtension
@@ -48,34 +49,80 @@ def convert_html_to_pdf(html_content):
     # Create a file-like buffer to receive PDF data
     pdf_buffer = io.BytesIO()
     
+    # Extract title from the first heading if available
+    title = "Converted PDF"
+    h1_match = re.search(r'<h1[^>]*>(.*?)</h1>', html_content, re.DOTALL)
+    if h1_match:
+        title = re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()
+    elif re.search(r'<h2[^>]*>(.*?)</h2>', html_content, re.DOTALL):
+        h2_match = re.search(r'<h2[^>]*>(.*?)</h2>', html_content, re.DOTALL)
+        title = re.sub(r'<[^>]+>', '', h2_match.group(1)).strip()
+    
     # Add CSS for styling
     styled_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>Converted PDF</title>
+        <title>{title}</title>
         <style>
+            @page {{
+                size: a4 portrait;
+                margin: 2cm 1.5cm;
+                @frame header {{
+                    -pdf-frame-content: headerContent;
+                    top: 0.5cm;
+                    margin-left: 1cm;
+                    margin-right: 1cm;
+                    height: 1cm;
+                }}
+                @frame footer {{
+                    -pdf-frame-content: footerContent;
+                    bottom: 0.5cm;
+                    margin-left: 1cm;
+                    margin-right: 1cm;
+                    height: 0.5cm;
+                }}
+            }}
+            
             body {{
                 font-family: Helvetica, Arial, sans-serif;
                 line-height: 1.6;
                 color: #333;
-                margin: 1cm;
+                margin: 0;
+                padding: 0;
+                font-size: 11pt;
             }}
+            
             h1, h2, h3, h4, h5, h6 {{
                 color: #2c3e50;
                 margin-top: 1.5em;
                 margin-bottom: 0.5em;
+                line-height: 1.2;
+                page-break-after: avoid;
             }}
-            h1 {{ font-size: 2.2em; border-bottom: 1px solid #eee; padding-bottom: 0.3em; }}
-            h2 {{ font-size: 1.8em; border-bottom: 1px solid #eee; padding-bottom: 0.3em; }}
-            h3 {{ font-size: 1.5em; }}
-            h4 {{ font-size: 1.3em; }}
-            h5 {{ font-size: 1.2em; }}
-            h6 {{ font-size: 1.1em; }}
             
-            p, ul, ol {{
+            h1 {{ font-size: 2em; border-bottom: 1px solid #eee; padding-bottom: 0.3em; margin-top: 0; }}
+            h2 {{ font-size: 1.6em; border-bottom: 1px solid #eee; padding-bottom: 0.3em; margin-top: 1.5em; }}
+            h3 {{ font-size: 1.3em; margin-top: 1.3em; }}
+            h4 {{ font-size: 1.1em; margin-top: 1.2em; }}
+            h5 {{ font-size: 1em; margin-top: 1.1em; }}
+            h6 {{ font-size: 0.9em; margin-top: 1em; }}
+            
+            p {{
+                margin-top: 0.5em;
+                margin-bottom: 0.8em;
+                text-align: justify;
+            }}
+            
+            ul, ol {{
+                margin-top: 0.5em;
                 margin-bottom: 1em;
+                padding-left: 2em;
+            }}
+            
+            li {{
+                margin-bottom: 0.3em;
             }}
             
             a {{
@@ -85,10 +132,10 @@ def convert_html_to_pdf(html_content):
             
             blockquote {{
                 border-left: 4px solid #ddd;
-                padding-left: 1em;
+                padding: 0.5em 1em;
                 color: #777;
-                margin-left: 0;
-                margin-right: 0;
+                margin: 1em 0;
+                background-color: #f8f8f8;
             }}
             
             code {{
@@ -98,6 +145,7 @@ def convert_html_to_pdf(html_content):
                 padding: 0.2em 0.4em;
                 border-radius: 3px;
                 font-size: 0.9em;
+                white-space: pre-wrap;
             }}
             
             pre {{
@@ -107,6 +155,8 @@ def convert_html_to_pdf(html_content):
                 border-radius: 5px;
                 overflow-x: auto;
                 margin: 1em 0;
+                white-space: pre-wrap;
+                page-break-inside: avoid;
             }}
             
             pre code {{
@@ -114,6 +164,7 @@ def convert_html_to_pdf(html_content):
                 color: #abb2bf !important;
                 padding: 0;
                 border-radius: 0;
+                font-size: 0.9em;
             }}
             
             /* Force all code spans to have proper background and text color */
@@ -130,7 +181,8 @@ def convert_html_to_pdf(html_content):
             table {{
                 border-collapse: collapse;
                 width: 100%;
-                margin: 1em 0;
+                margin: 1.5em 0;
+                page-break-inside: avoid;
             }}
             
             table, th, td {{
@@ -144,11 +196,19 @@ def convert_html_to_pdf(html_content):
             
             th {{
                 background-color: #f5f5f5;
+                font-weight: bold;
+            }}
+            
+            tr:nth-child(even) {{
+                background-color: #f9f9f9;
             }}
             
             img {{
                 max-width: 100%;
                 height: auto;
+                display: block;
+                margin: 1.5em auto;
+                page-break-inside: avoid;
             }}
             
             hr {{
@@ -157,6 +217,19 @@ def convert_html_to_pdf(html_content):
                 margin: 2em 0;
             }}
             
+            #headerContent {{
+                text-align: right;
+                font-size: 9pt;
+                color: #777;
+            }}
+            
+            #footerContent {{
+                text-align: center;
+                font-size: 9pt;
+                color: #777;
+            }}
+            
+            /* Syntax highlighting styles - One Dark theme */
             .highlight {{ background-color: #282c34 !important; color: #abb2bf !important; }}
             .highlight .hll {{ background-color: #282c34 !important; }}
             .highlight .c {{ color: #5c6370 !important; font-style: italic !important; background-color: #282c34 !important; }} /* Comment */
@@ -229,7 +302,11 @@ def convert_html_to_pdf(html_content):
         </style>
     </head>
     <body>
+        <div id="headerContent">{title}</div>
         {html_content}
+        <div id="footerContent" style="text-align: center; font-size: 9pt; color: #777;">
+            Page <pdf:pagenumber> of <pdf:pagecount>
+        </div>
     </body>
     </html>
     """
@@ -266,11 +343,22 @@ def convert():
         # Convert HTML to PDF
         pdf_buffer = convert_html_to_pdf(html_content)
         if pdf_buffer:
+            # Extract title for the filename
+            title = "converted"
+            h1_match = re.search(r'<h1[^>]*>(.*?)</h1>', html_content, re.DOTALL)
+            if h1_match:
+                # Clean the title for use in filename
+                clean_title = re.sub(r'<[^>]+>', '', h1_match.group(1))
+                clean_title = re.sub(r'[^\w\s-]', '', clean_title).strip().lower()
+                clean_title = re.sub(r'[-\s]+', '-', clean_title)
+                if clean_title:
+                    title = clean_title
+            
             response = make_response(send_file(
                 pdf_buffer,
                 mimetype='application/pdf',
                 as_attachment=True,
-                download_name='converted.pdf'
+                download_name=f"{title}.pdf"
             ))
             return response
         else:
@@ -287,4 +375,4 @@ def preview():
     return jsonify({'html': html_content})
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True, port=5001) 
