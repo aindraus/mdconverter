@@ -58,6 +58,16 @@ def convert_html_to_pdf(html_content):
         h2_match = re.search(r'<h2[^>]*>(.*?)</h2>', html_content, re.DOTALL)
         title = re.sub(r'<[^>]+>', '', h2_match.group(1)).strip()
     
+    # Pre-process code blocks to ensure they preserve spacing
+    def replace_code_block(match):
+        code_content = match.group(1)
+        # Preserve the exact spacing/indentation by using non-breaking spaces for leading spaces
+        code_content = code_content.replace('\t', '    ')  # Convert tabs to 4 spaces
+        return f'<pre><code>{code_content}</code></pre>'
+    
+    # Find and process all code blocks
+    html_content = re.sub(r'<pre><code>(.*?)</code></pre>', replace_code_block, html_content, flags=re.DOTALL)
+    
     # Add CSS for styling
     styled_html = f"""
     <!DOCTYPE html>
@@ -86,7 +96,7 @@ def convert_html_to_pdf(html_content):
             }}
             
             body {{
-                font-family: Helvetica, Arial, sans-serif;
+                font-family: "Helvetica", "Arial", sans-serif;
                 line-height: 1.6;
                 color: #333;
                 margin: 0;
@@ -139,13 +149,13 @@ def convert_html_to_pdf(html_content):
             }}
             
             code {{
-                font-family: Courier, monospace;
+                font-family: "Courier", monospace;
                 background-color: #282c34 !important;
                 color: #abb2bf !important;
                 padding: 0.2em 0.4em;
                 border-radius: 3px;
                 font-size: 0.9em;
-                white-space: pre-wrap;
+                white-space: pre;
             }}
             
             pre {{
@@ -155,8 +165,14 @@ def convert_html_to_pdf(html_content):
                 border-radius: 5px;
                 overflow-x: auto;
                 margin: 1em 0;
-                white-space: pre-wrap;
+                white-space: pre !important;
                 page-break-inside: avoid;
+                font-family: "Courier", monospace;
+                font-size: 9pt;
+                tab-size: 4 !important;
+                -moz-tab-size: 4 !important;
+                -o-tab-size: 4 !important;
+                -webkit-tab-size: 4 !important;
             }}
             
             pre code {{
@@ -164,18 +180,28 @@ def convert_html_to_pdf(html_content):
                 color: #abb2bf !important;
                 padding: 0;
                 border-radius: 0;
-                font-size: 0.9em;
+                font-size: 9pt;
+                white-space: pre !important;
+                font-family: "Courier", monospace;
+                display: block;
+                line-height: 1.5;
+                tab-size: 4 !important;
+                -moz-tab-size: 4 !important;
+                -o-tab-size: 4 !important;
+                -webkit-tab-size: 4 !important;
             }}
             
             /* Force all code spans to have proper background and text color */
             .highlight * {{
                 background-color: #282c34 !important;
                 color: #abb2bf !important;
+                white-space: pre !important;
             }}
             
             /* Ensure code spans inside pre have proper styling */
             pre * {{
                 background-color: #282c34 !important;
+                white-space: pre !important;
             }}
             
             table {{
